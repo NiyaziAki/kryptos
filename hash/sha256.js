@@ -27,7 +27,7 @@ const zeroPad = number => {
 
 const hash = value => {
   if (!isString(value)) {
-    throw new Error();
+    throw new TypeError("Type must be string for hashing.");
   }
 
   const byteArray = utf8.encode(value);
