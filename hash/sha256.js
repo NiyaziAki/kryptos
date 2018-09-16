@@ -25,6 +25,41 @@ const zeroPad = number => {
   return "00000000".slice(value.length) + value;
 };
 
+const findLeadingZeros = messageLength => {
+  const modulus = (messageLength + 1) % 512;
+
+  return modulus > 448 ? 960 - modulus : 448 - modulus;
+};
+
+const createBlocks = bitBlock => {
+  const blocks = [];
+
+  for (let index = 0; index < bitBlock.length / 32; index++) {
+    blocks.push(parseInt(bitBlock.slice(index * 32, (index + 1) * 32), 2));
+  }
+
+  return blocks;
+};
+
+const calculateMessageSchedule = (blocks, i) => {
+  const messageSchedule = [];
+
+  for (let t = 0; t < 64; t++) {
+    if (t < 16) {
+      messageSchedule[t] = blocks[t + i] >>> 0;
+    } else {
+      messageSchedule[t] =
+        (gamma1256(messageSchedule[t - 2]) +
+          messageSchedule[t - 7] +
+          gamma0256(messageSchedule[t - 15]) +
+          messageSchedule[t - 16]) >>>
+        0;
+    }
+  }
+
+  return messageSchedule;
+};
+
 const hash = value => {
   if (!isString(value)) {
     throw new TypeError("Type must be string for hashing.");
@@ -41,38 +76,19 @@ const hash = value => {
 
   message += "1";
 
-  const modulus = (messageLength + 1) % 512;
-
-  const leadingZeros = modulus > 448 ? 960 - modulus : 448 - modulus;
+  const leadingZeros = findLeadingZeros(messageLength);
 
   message += "0".repeat(leadingZeros);
 
   const length = messageLength.toString(2);
   const bitBlock = message + "0".repeat(64 - length.length) + length;
 
-  const blocks = [];
-
-  for (let index = 0; index < bitBlock.length / 32; index++) {
-    blocks.push(parseInt(bitBlock.slice(index * 32, (index + 1) * 32), 2));
-  }
+  const blocks = createBlocks(bitBlock);
 
   const initialHashValues = [hashConstants.sha256InitialHashValues];
 
   for (let i = 0; i < blocks.length; i += 16) {
-    const messageSchedule = [];
-
-    for (let t = 0; t < 64; t++) {
-      if (t < 16) {
-        messageSchedule[t] = blocks[t + i] >>> 0;
-      } else {
-        messageSchedule[t] =
-          (gamma1256(messageSchedule[t - 2]) +
-            messageSchedule[t - 7] +
-            gamma0256(messageSchedule[t - 15]) +
-            messageSchedule[t - 16]) >>>
-          0;
-      }
-    }
+    const messageSchedule = calculateMessageSchedule(blocks, i);
 
     let a = initialHashValues[i][0];
     let b = initialHashValues[i][1];
