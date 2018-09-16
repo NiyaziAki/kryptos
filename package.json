@@ -4,7 +4,8 @@
   "description": "A simple library of cryptographic standards.",
   "main": "kryptos.js",
   "scripts": {
-    "test": "nyc --reporter=text-lcov mocha --timeout 10000 --exit"
+    "test": "nyc --reporter=text-lcov mocha --timeout 10000 --exit",
+    "test-html": "nyc --reporter=html mocha --timeout 10000 --exit"
   },
   "repository": {
     "type": "git",
