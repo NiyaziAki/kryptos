@@ -38,10 +38,10 @@ rules:
     key-spacing: ["error", { beforeColon: false, afterColon: true }]
     keyword-spacing: "error"
     lines-around-comment: ["error", {
-        beforeBlockComment: true,
+        beforeBlockComment: false,
         afterBlockComment: false,
-        beforeLineComment: true,
-        afterLineComment: false
+        beforeLineComment: false,
+        afterLineComment: true
     }]
     max-len: ["error", 160, {
         "ignoreComments": true,
