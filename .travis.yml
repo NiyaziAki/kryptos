@@ -1,0 +1,8 @@
+language: node_js
+node_js:
+  - "10"
+
+before_install:
+  - pip install --user codecov
+after_success:
+  - nyc report --reporter=text-lcov > coverage.lcov && codecov
